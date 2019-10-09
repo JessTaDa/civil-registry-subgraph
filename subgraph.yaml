@@ -1,0 +1,80 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: mainnet
+    source:
+      address: "0xBd5a95A66dd4E78Bcb597198Df222c4EdDC14DA7"
+      abi: Contract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - _AppealRequested
+        - _AppealGranted
+        - _FailedChallengeOverturned
+        - _SuccessfulChallengeOverturned
+        - _GrantedAppealChallenged
+        - _GrantedAppealOverturned
+        - _GrantedAppealConfirmed
+        - _GovernmentTransfered
+        - _Application
+        - _Challenge
+        - _Deposit
+        - _Withdrawal
+        - _ApplicationWhitelisted
+        - _ApplicationRemoved
+        - _ListingRemoved
+        - _ListingWithdrawn
+        - _TouchAndRemoved
+        - _ChallengeFailed
+        - _ChallengeSucceeded
+        - _RewardClaimed
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: _AppealRequested(indexed address,indexed uint256,uint256,address,string)
+          handler: handle_AppealRequested
+        - event: _AppealGranted(indexed address,indexed uint256,string)
+          handler: handle_AppealGranted
+        - event: _FailedChallengeOverturned(indexed address,indexed uint256,uint256,uint256)
+          handler: handle_FailedChallengeOverturned
+        - event: _SuccessfulChallengeOverturned(indexed address,indexed uint256,uint256,uint256)
+          handler: handle_SuccessfulChallengeOverturned
+        - event: _GrantedAppealChallenged(indexed address,indexed uint256,indexed uint256,string)
+          handler: handle_GrantedAppealChallenged
+        - event: _GrantedAppealOverturned(indexed address,indexed uint256,indexed uint256,uint256,uint256)
+          handler: handle_GrantedAppealOverturned
+        - event: _GrantedAppealConfirmed(indexed address,indexed uint256,indexed uint256,uint256,uint256)
+          handler: handle_GrantedAppealConfirmed
+        - event: _GovernmentTransfered(address)
+          handler: handle_GovernmentTransfered
+        - event: _Application(indexed address,uint256,uint256,string,indexed address)
+          handler: handle_Application
+        - event: _Challenge(indexed address,indexed uint256,string,uint256,uint256,indexed address)
+          handler: handle_Challenge
+        - event: _Deposit(indexed address,uint256,uint256,indexed address)
+          handler: handle_Deposit
+        - event: _Withdrawal(indexed address,uint256,uint256,indexed address)
+          handler: handle_Withdrawal
+        - event: _ApplicationWhitelisted(indexed address)
+          handler: handle_ApplicationWhitelisted
+        - event: _ApplicationRemoved(indexed address)
+          handler: handle_ApplicationRemoved
+        - event: _ListingRemoved(indexed address)
+          handler: handle_ListingRemoved
+        - event: _ListingWithdrawn(indexed address)
+          handler: handle_ListingWithdrawn
+        - event: _TouchAndRemoved(indexed address)
+          handler: handle_TouchAndRemoved
+        - event: _ChallengeFailed(indexed address,indexed uint256,uint256,uint256)
+          handler: handle_ChallengeFailed
+        - event: _ChallengeSucceeded(indexed address,indexed uint256,uint256,uint256)
+          handler: handle_ChallengeSucceeded
+        - event: _RewardClaimed(indexed uint256,uint256,indexed address)
+          handler: handle_RewardClaimed
+      file: ./src/mapping.ts
