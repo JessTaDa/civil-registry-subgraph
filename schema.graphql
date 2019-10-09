@@ -1,6 +1,12 @@
-type ExampleEntity @entity {
+type Appeal @entity {
   id: ID!
-  count: BigInt!
-  listingAddress: Bytes! # address
-  challengeID: BigInt! # uint256
+  requester: Bytes!
+  appealFeePaid: BigInt!
+  appealPhaseExpiry: BigInt!
+  appealGranted: Boolean!
+  appealOpenToChallengeExpiry: BigInt!
+  appealChallengeID: BigInt!
+  overturned: Boolean!
+  listingAddress: Bytes!
 }
+

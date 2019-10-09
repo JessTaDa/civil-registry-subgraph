@@ -1,2 +1,5 @@
 generated
 node_modules
+/civilContracts
+*.sol
+/build

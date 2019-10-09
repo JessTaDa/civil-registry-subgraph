@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, log } from "@graphprotocol/graph-ts"
 import {
   Contract,
   _AppealRequested,
@@ -22,72 +22,45 @@ import {
   _ChallengeSucceeded,
   _RewardClaimed
 } from "../generated/Contract/Contract"
-import { ExampleEntity } from "../generated/schema"
+import { Appeal } from "../generated/schema"
 
+// @param listingAddress The hash of a potential listing a user is applying to add to the registry
+// Appeal appeal = appeals[challengeID];
 export function handle_AppealRequested(event: _AppealRequested): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
+  let contract = Contract.bind(event.address)
+  let appealData = contract.appeals(event.params.challengeID)
+  let entity = Appeal.load(event.transaction.from.toHex())
   if (entity == null) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+    entity = new Appeal(event.transaction.from.toHex())
+    entity.appealPhaseExpiry = appealData.value2
+    entity.appealGranted = appealData.value3
+    entity.appealOpenToChallengeExpiry = appealData.value4
+    entity.overturned = appealData.value6
   }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
+  entity.requester = event.params.requester
+  entity.appealFeePaid = event.params.appealFeePaid
+  entity.appealChallengeID = event.params.challengeID
   entity.listingAddress = event.params.listingAddress
-  entity.challengeID = event.params.challengeID
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.name(...)
-  // - contract.appealChallengeCanBeResolved(...)
-  // - contract.challengeGrantedAppeal(...)
-  // - contract.civilVoting(...)
-  // - contract.appealCanBeResolved(...)
-  // - contract.government(...)
-  // - contract.challengeCanBeResolved(...)
-  // - contract.isWhitelisted(...)
-  // - contract.appWasMade(...)
-  // - contract.challengeRequestAppealExpiries(...)
-  // - contract.listings(...)
-  // - contract.challengeExists(...)
-  // - contract.challenges(...)
-  // - contract.tokenClaims(...)
-  // - contract.voterReward(...)
-  // - contract.appeals(...)
-  // - contract.challenge(...)
-  // - contract.determineReward(...)
-  // - contract.canBeWhitelisted(...)
-  // - contract.parameterizer(...)
-  // - contract.token(...)
-  // - contract.voting(...)
 }
 
-export function handle_AppealGranted(event: _AppealGranted): void {}
+export function handle_AppealGranted(event: _AppealGranted): void {
+  let contract = Contract.bind(event.address)
+  let appealData = contract.appeals(event.params.challengeID)
+  let entity = Appeal.load(event.transaction.from.toHex())
+  if (entity == null) {
+    entity = new Appeal(event.transaction.from.toHex())
+    entity.requester = appealData.value0
+    entity.appealFeePaid = appealData.value1 
+    entity.appealPhaseExpiry = appealData.value2
+    entity.appealGranted = appealData.value3
+    entity.appealOpenToChallengeExpiry = appealData.value4
+    entity.overturned = appealData.value6
+  }
+  entity.appealChallengeID = event.params.challengeID
+  entity.listingAddress = event.params.listingAddress
+  log.info("event.params.data", [event.params.data.toString()])
+}
+
 
 export function handle_FailedChallengeOverturned(
   event: _FailedChallengeOverturned
@@ -138,3 +111,4 @@ export function handle_ChallengeFailed(event: _ChallengeFailed): void {}
 export function handle_ChallengeSucceeded(event: _ChallengeSucceeded): void {}
 
 export function handle_RewardClaimed(event: _RewardClaimed): void {}
+
