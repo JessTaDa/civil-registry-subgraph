@@ -41,6 +41,7 @@ export function handle_AppealRequested(event: _AppealRequested): void {
   entity.appealFeePaid = event.params.appealFeePaid
   entity.appealChallengeID = event.params.challengeID
   entity.listingAddress = event.params.listingAddress
+  entity.save()
 }
 
 export function handle_AppealGranted(event: _AppealGranted): void {
@@ -59,6 +60,7 @@ export function handle_AppealGranted(event: _AppealGranted): void {
   entity.appealChallengeID = event.params.challengeID
   entity.listingAddress = event.params.listingAddress
   log.info("event.params.data", [event.params.data.toString()])
+  entity.save()
 }
 
 
