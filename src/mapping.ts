@@ -35,13 +35,6 @@ function createUser(event: EthereumEvent): User {
     user.ownedListings = new Array<string>()
     user.ownedChallenges = new Array<string>()
   }
-  // log.info("user info", [
-  //   user.id.toString(),
-  //   user.address.toString(),
-  //   user.requestedAppeals.toString(),
-  //   user.ownedChallenges.toString(), 
-  //   user.ownedListings.toString(),
-  //  ])
    user.save()
   return user as User;
 }
@@ -84,7 +77,6 @@ export function handle_AppealGranted(event: _AppealGranted): void {
   log.info("event.params.data", [event.params.data.toString()])
   entity.save()
 }
-
 
 export function handle_FailedChallengeOverturned(
   event: _FailedChallengeOverturned
