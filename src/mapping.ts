@@ -26,8 +26,7 @@ import { Appeal, User } from "../generated/schema"
 
 // @param listingAddress The hash of a potential listing a user is applying to add to the registry
 // Appeal appeal = appeals[challengeID];
-
-export function createUser(event: EthereumEvent): User {
+function createUser(event: EthereumEvent): User {
   let user = User.load(event.transaction.hash.toHex())
   if (user == null) {
     user = new User(event.transaction.hash.toHex())
@@ -66,25 +65,25 @@ export function handle_AppealRequested(event: _AppealRequested): void {
   entity.save()
 }
 
-// export function handle_AppealGranted(event: _AppealGranted): void {
-//   let contract = Contract.bind(event.address)
-//   let appealData = contract.appeals(event.params.challengeID)
-//   let entity = Appeal.load(event.transaction.hash.toHex())
-//   if (entity == null) {
-//     entity = new Appeal(event.transaction.hash.toHex())
-//     entity.appealFeePaid = appealData.value1 
-//     entity.appealPhaseExpiry = appealData.value2
-//     entity.appealGranted = appealData.value3
-//     entity.appealOpenToChallengeExpiry = appealData.value4
-//     entity.overturned = appealData.value6
-//   }
-//   let user = createUser(event)
-//   entity.requester = user.id.toString()
-//   entity.appealChallengeID = event.params.challengeID
-//   entity.listingAddress = event.params.listingAddress
-//   log.info("event.params.data", [event.params.data.toString()])
-//   entity.save()
-// }
+export function handle_AppealGranted(event: _AppealGranted): void {
+  let contract = Contract.bind(event.address)
+  let appealData = contract.appeals(event.params.challengeID)
+  let entity = Appeal.load(event.transaction.hash.toHex())
+  if (entity == null) {
+    entity = new Appeal(event.transaction.hash.toHex())
+    entity.appealFeePaid = appealData.value1 
+    entity.appealPhaseExpiry = appealData.value2
+    entity.appealGranted = appealData.value3
+    entity.appealOpenToChallengeExpiry = appealData.value4
+    entity.overturned = appealData.value6
+  }
+  let user = createUser(event)
+  entity.requester = user.id.toString()
+  entity.appealChallengeID = event.params.challengeID
+  entity.listingAddress = event.params.listingAddress
+  log.info("event.params.data", [event.params.data.toString()])
+  entity.save()
+}
 
 
 export function handle_FailedChallengeOverturned(
