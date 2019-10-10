@@ -27,23 +27,22 @@ import { Appeal, User } from "../generated/schema"
 // @param listingAddress The hash of a potential listing a user is applying to add to the registry
 // Appeal appeal = appeals[challengeID];
 
-function createUser(event: EthereumEvent): User {
-  let user = User.load(event.transaction.from.toHex())
-  
+export function createUser(event: EthereumEvent): User {
+  let user = User.load(event.transaction.hash.toHex())
   if (user == null) {
-    let user = new User(event.transaction.from.toHex())
+    user = new User(event.transaction.hash.toHex())
     user.address = event.transaction.from
     user.requestedAppeals = new Array<string>()
     user.ownedListings = new Array<string>()
     user.ownedChallenges = new Array<string>()
   }
-  log.info("user info", [
-    user.id.toString(),
-    user.address.toString(),
-    user.requestedAppeals.toString(),
-    user.ownedChallenges.toString(), 
-    user.ownedListings.toString(),
-   ])
+  // log.info("user info", [
+  //   user.id.toString(),
+  //   user.address.toString(),
+  //   user.requestedAppeals.toString(),
+  //   user.ownedChallenges.toString(), 
+  //   user.ownedListings.toString(),
+  //  ])
    user.save()
   return user as User;
 }
@@ -51,9 +50,9 @@ function createUser(event: EthereumEvent): User {
 export function handle_AppealRequested(event: _AppealRequested): void {
   let contract = Contract.bind(event.address)
   let appealData = contract.appeals(event.params.challengeID)
-  let entity = Appeal.load(event.transaction.from.toHex())
+  let entity = Appeal.load(event.transaction.hash.toHex())
   if (entity == null) {
-    entity = new Appeal(event.transaction.from.toHex())
+    entity = new Appeal(event.transaction.hash.toHex())
     entity.appealPhaseExpiry = appealData.value2
     entity.appealGranted = appealData.value3
     entity.appealOpenToChallengeExpiry = appealData.value4
@@ -65,29 +64,27 @@ export function handle_AppealRequested(event: _AppealRequested): void {
   entity.appealChallengeID = event.params.challengeID
   entity.listingAddress = event.params.listingAddress
   entity.save()
-  event.params.data.toString()
 }
 
-export function handle_AppealGranted(event: _AppealGranted): void {
-  let contract = Contract.bind(event.address)
-  let appealData = contract.appeals(event.params.challengeID)
-  let entity = Appeal.load(event.transaction.from.toHex())
-  if (entity == null) {
-    createUser(event)
-    entity = new Appeal(event.transaction.from.toHex())
-    entity.appealFeePaid = appealData.value1 
-    entity.appealPhaseExpiry = appealData.value2
-    entity.appealGranted = appealData.value3
-    entity.appealOpenToChallengeExpiry = appealData.value4
-    entity.overturned = appealData.value6
-  }
-  let user = createUser(event)
-  entity.requester = user.id.toString()
-  entity.appealChallengeID = event.params.challengeID
-  entity.listingAddress = event.params.listingAddress
-  log.info("event.params.data", [event.params.data.toString()])
-  entity.save()
-}
+// export function handle_AppealGranted(event: _AppealGranted): void {
+//   let contract = Contract.bind(event.address)
+//   let appealData = contract.appeals(event.params.challengeID)
+//   let entity = Appeal.load(event.transaction.hash.toHex())
+//   if (entity == null) {
+//     entity = new Appeal(event.transaction.hash.toHex())
+//     entity.appealFeePaid = appealData.value1 
+//     entity.appealPhaseExpiry = appealData.value2
+//     entity.appealGranted = appealData.value3
+//     entity.appealOpenToChallengeExpiry = appealData.value4
+//     entity.overturned = appealData.value6
+//   }
+//   let user = createUser(event)
+//   entity.requester = user.id.toString()
+//   entity.appealChallengeID = event.params.challengeID
+//   entity.listingAddress = event.params.listingAddress
+//   log.info("event.params.data", [event.params.data.toString()])
+//   entity.save()
+// }
 
 
 export function handle_FailedChallengeOverturned(
