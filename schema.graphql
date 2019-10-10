@@ -1,6 +1,6 @@
 type Appeal @entity {
   id: ID!
-  requester: Bytes!
+  requester: User!
   appealFeePaid: BigInt!
   appealPhaseExpiry: BigInt!
   appealGranted: Boolean!
@@ -10,3 +10,28 @@ type Appeal @entity {
   listingAddress: Bytes!
 }
 
+type Listing @entity {
+  id: ID!
+  applicationExpiry: BigInt! #Expiration date of apply stage
+  whitelisted: Boolean! #Indicates registry status
+  owner: User! #Owner of Listing
+  unstakedDeposit: BigInt! #Number of tokens in the listing not locked in a challenge
+  challengeID: BigInt! #Corresponds to a PollID in PLCRVoting
+}
+
+type Challenge @entity {
+  id: ID!
+  rewardPool: BigInt! #(remaining) Pool of tokens to be distributed to winning voters
+  challenger: User! #Owner of Challenge
+  resolved: Boolean! #Indication of if challenge is resolved
+  stake: BigInt! #Number of tokens at stake for either party during challenge
+  totalTokens: BigInt! #(remaining) Number of tokens used in voting by the winning side
+}
+
+type User @entity {
+  id: ID!
+  address: Bytes!
+  requestedAppeals: [Appeal!] @derivedFrom(field: "requester")
+  ownedListings: [Listing!] @derivedFrom(field: "owner")
+  ownedChallenges: [Challenge!] @derivedFrom(field: "challenger")
+}
